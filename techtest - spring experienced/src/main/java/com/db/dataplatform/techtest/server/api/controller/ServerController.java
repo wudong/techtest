@@ -1,6 +1,7 @@
 package com.db.dataplatform.techtest.server.api.controller;
 
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.api.model.PushResponse;
 import com.db.dataplatform.techtest.server.component.Server;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +27,13 @@ public class ServerController {
     private final Server server;
 
     @PostMapping(value = "/pushdata", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Boolean> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) throws IOException, NoSuchAlgorithmException {
+    public ResponseEntity<PushResponse> pushData(@Valid @RequestBody DataEnvelope dataEnvelope) throws IOException, NoSuchAlgorithmException {
 
         log.info("Data envelope received: {}", dataEnvelope.getDataHeader().getName());
         boolean checksumPass = server.saveDataEnvelope(dataEnvelope);
 
         log.info("Data envelope persisted. Attribute name: {}", dataEnvelope.getDataHeader().getName());
-        return ResponseEntity.ok(checksumPass);
+        return ResponseEntity.ok(new PushResponse(checksumPass));
     }
 
 }
