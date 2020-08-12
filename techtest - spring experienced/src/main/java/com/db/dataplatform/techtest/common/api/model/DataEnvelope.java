@@ -27,4 +27,8 @@ public class DataEnvelope {
     @Setter
     @NotNull
     private String checksum;
+
+    public DataEnvelope(DataHeader dataHeader, DataBody dataBody ) {
+        this(dataHeader, dataBody, null);
+    }
 }

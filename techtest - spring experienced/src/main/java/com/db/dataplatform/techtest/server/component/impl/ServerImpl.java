@@ -1,7 +1,10 @@
 package com.db.dataplatform.techtest.server.component.impl;
 
+import com.db.dataplatform.techtest.common.api.model.DataBody;
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.api.model.DataHeader;
 import com.db.dataplatform.techtest.common.util.ChecksumCalc;
+import com.db.dataplatform.techtest.server.persistence.BlockTypeEnum;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
 import com.db.dataplatform.techtest.server.service.DataBodyService;
@@ -11,7 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,18 +47,34 @@ public class ServerImpl implements Server {
         return checkPassed;
     }
 
+    @Override
+    public List<DataEnvelope> findDataEnvelopByBlocktype(BlockTypeEnum type) throws IOException {
+        List<DataBodyEntity> dataByBlockType = dataBodyServiceImpl.getDataByBlockType(type);
+        return dataByBlockType.stream()
+            .map(this::mapDataBodyEntityToDataEnvelop)
+            .collect(Collectors.toList());
+    }
+
     private void persist(DataEnvelope envelope) {
         log.info("Persisting data with attribute name: {}", envelope.getDataHeader().getName());
         DataHeaderEntity dataHeaderEntity = modelMapper.map(envelope.getDataHeader(), DataHeaderEntity.class);
 
         DataBodyEntity dataBodyEntity = modelMapper.map(envelope.getDataBody(), DataBodyEntity.class);
         dataBodyEntity.setDataHeaderEntity(dataHeaderEntity);
+        dataBodyEntity.setChecksum(envelope.getChecksum());
 
         saveData(dataBodyEntity);
     }
 
     private void saveData(DataBodyEntity dataBodyEntity) {
         dataBodyServiceImpl.saveDataBody(dataBodyEntity);
+    }
+
+    private DataEnvelope mapDataBodyEntityToDataEnvelop(DataBodyEntity entity) {
+        DataBody dataBody = new DataBody(entity.getDataBody());
+        DataHeader dataHeader = new DataHeader(entity.getDataHeaderEntity().getName(), entity.getDataHeaderEntity().getBlocktype());
+        DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, entity.getChecksum());
+        return dataEnvelope;
     }
 
 }

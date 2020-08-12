@@ -36,6 +36,9 @@ public class DataBodyEntity {
     @Column(name = "DATA_BODY")
     private String dataBody;
 
+    @Column(name = "CHECKSUM")
+    private String checksum;
+
     @Column(name = "CREATED_TIMESTAMP")
     private Instant createdTimestamp;
 
