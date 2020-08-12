@@ -1,6 +1,6 @@
 package com.db.dataplatform.techtest.server.component;
 
-import com.db.dataplatform.techtest.server.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;

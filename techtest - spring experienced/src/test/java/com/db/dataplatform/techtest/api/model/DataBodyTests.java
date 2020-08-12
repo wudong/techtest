@@ -1,6 +1,6 @@
 package com.db.dataplatform.techtest.api.model;
 
-import com.db.dataplatform.techtest.server.api.model.DataBody;
+import com.db.dataplatform.techtest.common.api.model.DataBody;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;

@@ -1,6 +1,6 @@
 package com.db.dataplatform.techtest.client.component.impl;
 
-import com.db.dataplatform.techtest.client.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.client.component.Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

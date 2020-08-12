@@ -1,4 +1,4 @@
-package com.db.dataplatform.techtest.server.api.model;
+package com.db.dataplatform.techtest.common.api.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -6,16 +6,20 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-@JsonSerialize(as = DataBody.class)
-@JsonDeserialize(as = DataBody.class)
+@JsonSerialize(as = DataEnvelope.class)
+@JsonDeserialize(as = DataEnvelope.class)
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-public class DataBody {
+public class DataEnvelope {
 
     @NotNull
-    private String dataBody;
+    @Valid
+    private DataHeader dataHeader;
 
+    @NotNull
+    private DataBody dataBody;
 }
