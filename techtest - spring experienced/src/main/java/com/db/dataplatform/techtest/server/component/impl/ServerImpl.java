@@ -1,6 +1,7 @@
 package com.db.dataplatform.techtest.server.component.impl;
 
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.util.ChecksumCalc;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
 import com.db.dataplatform.techtest.server.service.DataBodyService;
@@ -10,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,7 @@ public class ServerImpl implements Server {
 
     private final DataBodyService dataBodyServiceImpl;
     private final ModelMapper modelMapper;
+    private final ChecksumCalc checksumCalc;
 
     /**
      * @param envelope
@@ -25,11 +29,16 @@ public class ServerImpl implements Server {
     @Override
     public boolean saveDataEnvelope(DataEnvelope envelope) {
 
-        // Save to persistence.
-        persist(envelope);
+        String checksum = checksumCalc.checksum(envelope.getDataBody().getDataBody());
+        String checksumInRequest = envelope.getChecksum();
+        boolean checkPassed = Objects.equals(checksum, checksumInRequest);
+        if (checkPassed) {
+            // Save to persistence.
+            persist(envelope);
+            log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
+        }
 
-        log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
-        return true;
+        return checkPassed;
     }
 
     private void persist(DataEnvelope envelope) {

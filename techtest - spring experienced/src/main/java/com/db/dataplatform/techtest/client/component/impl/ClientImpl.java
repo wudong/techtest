@@ -3,6 +3,7 @@ package com.db.dataplatform.techtest.client.component.impl;
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.client.component.Client;
 import com.db.dataplatform.techtest.common.api.model.PushResponse;
+import com.db.dataplatform.techtest.common.util.ChecksumCalc;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -30,6 +31,7 @@ public class ClientImpl implements Client {
     public static final UriTemplate URI_PATCHDATA = new UriTemplate("http://localhost:8090/dataserver/update/{name}/{newBlockType}");
 
     private final RestTemplate restTemplate;
+    private final ChecksumCalc checksumCalc;
 
     @Override
     public void pushData(DataEnvelope dataEnvelope) {
@@ -37,13 +39,17 @@ public class ClientImpl implements Client {
         try {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<DataEnvelope> request = new HttpEntity<DataEnvelope>(dataEnvelope, httpHeaders);
+
+            String checksum = checksumCalc.checksum(dataEnvelope.getDataBody().getDataBody());
+            dataEnvelope.setChecksum(checksum);
+
+            HttpEntity<DataEnvelope> request = new HttpEntity<>(dataEnvelope, httpHeaders);
             ResponseEntity<PushResponse> response = restTemplate.postForEntity(URI_PUSHDATA, request, PushResponse.class);
             if (response.getStatusCode().isError()) {
                 log.warn("Error response received: {}", response);
             }
         }catch (RestClientException e) {
-            log.error("Error while pushing data: {}", e);
+            log.error("Error while pushing data", e);
             throw e;
         }
     }

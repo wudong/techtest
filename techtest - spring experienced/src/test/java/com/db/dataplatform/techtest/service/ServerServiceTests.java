@@ -1,6 +1,7 @@
 package com.db.dataplatform.techtest.service;
 
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.util.ChecksumCalc;
 import com.db.dataplatform.techtest.server.mapper.ServerMapperConfiguration;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
@@ -26,6 +27,9 @@ public class ServerServiceTests {
     @Mock
     private DataBodyService dataBodyServiceImplMock;
 
+    @Mock
+    private ChecksumCalc checksumCalc;
+
     private ModelMapper modelMapper;
 
     private DataBodyEntity expectedDataBodyEntity;
@@ -42,7 +46,7 @@ public class ServerServiceTests {
         expectedDataBodyEntity = modelMapper.map(testDataEnvelope.getDataBody(), DataBodyEntity.class);
         expectedDataBodyEntity.setDataHeaderEntity(modelMapper.map(testDataEnvelope.getDataHeader(), DataHeaderEntity.class));
 
-        server = new ServerImpl(dataBodyServiceImplMock, modelMapper);
+        server = new ServerImpl(dataBodyServiceImplMock, modelMapper, checksumCalc);
     }
 
     @Test
