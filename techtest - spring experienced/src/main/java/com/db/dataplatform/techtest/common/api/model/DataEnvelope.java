@@ -22,13 +22,15 @@ public class DataEnvelope {
     private DataHeader dataHeader;
 
     @NotNull
+    @Valid
     private DataBody dataBody;
 
     @Setter
     @NotNull
     private String checksum;
 
-    public DataEnvelope(DataHeader dataHeader, DataBody dataBody ) {
+    // for back capability with existing code.
+    public DataEnvelope(DataHeader dataHeader, DataBody dataBody) {
         this(dataHeader, dataBody, null);
     }
 }
