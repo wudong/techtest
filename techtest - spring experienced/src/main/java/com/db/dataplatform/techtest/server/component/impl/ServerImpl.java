@@ -12,7 +12,13 @@ import com.db.dataplatform.techtest.server.component.Server;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,6 +33,9 @@ public class ServerImpl implements Server {
     private final DataBodyService dataBodyServiceImpl;
     private final ModelMapper modelMapper;
     private final ChecksumCalc checksumCalc;
+    private final RestTemplate restTemplate;
+
+    private final String HADOOP_URL = "http://localhost:8090/hadoopserver/pushbigdata";
 
     /**
      * @param envelope
@@ -43,6 +52,9 @@ public class ServerImpl implements Server {
             persist(envelope);
             log.info("Data persisted successfully, data name: {}", envelope.getDataHeader().getName());
         }
+
+        //also push to hadoop
+        pushToHadoop(envelope.getDataBody().getDataBody());
 
         return checkPassed;
     }
@@ -81,6 +93,22 @@ public class ServerImpl implements Server {
         DataHeader dataHeader = new DataHeader(entity.getDataHeaderEntity().getName(), entity.getDataHeaderEntity().getBlocktype());
         DataEnvelope dataEnvelope = new DataEnvelope(dataHeader, dataBody, entity.getChecksum());
         return dataEnvelope;
+    }
+
+    @Override
+    @Async
+    public void pushToHadoop(String body) {
+        log.info("Pushing data {} to Hadoop");
+        try {
+
+            ResponseEntity<String> response = restTemplate.postForEntity(HADOOP_URL, body, String.class);
+            if (response.getStatusCode().isError()) {
+                log.warn("Error response received: {}", response);
+            }
+        }catch (RestClientException e) {
+            log.error("Error while pushing data to hadoop, will retry", e);
+            throw e;
+        }
     }
 
 }
