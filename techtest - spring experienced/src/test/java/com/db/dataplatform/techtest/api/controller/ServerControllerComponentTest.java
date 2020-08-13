@@ -1,6 +1,7 @@
 package com.db.dataplatform.techtest.api.controller;
 
 import com.db.dataplatform.techtest.TestDataHelper;
+import com.db.dataplatform.techtest.common.api.model.PushResponse;
 import com.db.dataplatform.techtest.server.api.controller.ServerController;
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.server.exception.HadoopClientException;
@@ -67,7 +68,8 @@ public class ServerControllerComponentTest {
 				.andExpect(status().isOk())
 				.andReturn();
 
-		boolean checksumPass = Boolean.parseBoolean(mvcResult.getResponse().getContentAsString());
-		assertThat(checksumPass).isTrue();
+		String contentAsString = mvcResult.getResponse().getContentAsString();
+		PushResponse pushResponse = objectMapper.readValue(contentAsString, PushResponse.class);
+		assertThat(pushResponse.isSuccessful()).isTrue();
 	}
 }

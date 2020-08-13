@@ -2,6 +2,7 @@ package com.db.dataplatform.techtest.service;
 
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.common.util.ChecksumCalc;
+import com.db.dataplatform.techtest.server.component.HadoopClient;
 import com.db.dataplatform.techtest.server.mapper.ServerMapperConfiguration;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
@@ -20,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 
 import static com.db.dataplatform.techtest.TestDataHelper.createTestDataEnvelopeApiObject;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServerServiceTests {
@@ -29,6 +31,9 @@ public class ServerServiceTests {
 
     @Mock
     private ChecksumCalc checksumCalc;
+
+    @Mock
+    private HadoopClient client;
 
     private ModelMapper modelMapper;
 
@@ -46,7 +51,8 @@ public class ServerServiceTests {
         expectedDataBodyEntity = modelMapper.map(testDataEnvelope.getDataBody(), DataBodyEntity.class);
         expectedDataBodyEntity.setDataHeaderEntity(modelMapper.map(testDataEnvelope.getDataHeader(), DataHeaderEntity.class));
 
-        server = new ServerImpl(dataBodyServiceImplMock, modelMapper, checksumCalc);
+        when(checksumCalc.checksum(testDataEnvelope.getDataBody().getDataBody())).thenReturn(testDataEnvelope.getChecksum());
+        server = new ServerImpl(dataBodyServiceImplMock, modelMapper, checksumCalc, client);
     }
 
     @Test
