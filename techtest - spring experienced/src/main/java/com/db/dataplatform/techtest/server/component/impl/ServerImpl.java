@@ -4,6 +4,7 @@ import com.db.dataplatform.techtest.common.api.model.DataBody;
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.common.api.model.DataHeader;
 import com.db.dataplatform.techtest.common.util.ChecksumCalc;
+import com.db.dataplatform.techtest.server.component.HadoopClient;
 import com.db.dataplatform.techtest.server.persistence.BlockTypeEnum;
 import com.db.dataplatform.techtest.server.persistence.model.DataBodyEntity;
 import com.db.dataplatform.techtest.server.persistence.model.DataHeaderEntity;
@@ -33,10 +34,7 @@ public class ServerImpl implements Server {
     private final DataBodyService dataBodyServiceImpl;
     private final ModelMapper modelMapper;
     private final ChecksumCalc checksumCalc;
-    private final RestTemplate restTemplate;
-
-    private final String HADOOP_URL = "http://localhost:8090/hadoopserver/pushbigdata";
-
+    private final HadoopClient hadoopClient;
     /**
      * @param envelope
      * @return true if there is a match with the client provided checksum.
@@ -54,7 +52,7 @@ public class ServerImpl implements Server {
         }
 
         //also push to hadoop
-        pushToHadoop(envelope.getDataBody().getDataBody());
+        hadoopClient.pushToHadoop(envelope.getDataBody().getDataBody());
 
         return checkPassed;
     }
@@ -95,20 +93,6 @@ public class ServerImpl implements Server {
         return dataEnvelope;
     }
 
-    @Override
-    @Async
-    public void pushToHadoop(String body) {
-        log.info("Pushing data {} to Hadoop");
-        try {
 
-            ResponseEntity<String> response = restTemplate.postForEntity(HADOOP_URL, body, String.class);
-            if (response.getStatusCode().isError()) {
-                log.warn("Error response received: {}", response);
-            }
-        }catch (RestClientException e) {
-            log.error("Error while pushing data to hadoop, will retry", e);
-            throw e;
-        }
-    }
 
 }
