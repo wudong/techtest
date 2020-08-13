@@ -1,6 +1,7 @@
 package com.db.dataplatform.techtest.server.api.controller;
 
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
+import com.db.dataplatform.techtest.common.api.model.PatchResponse;
 import com.db.dataplatform.techtest.common.api.model.PushResponse;
 import com.db.dataplatform.techtest.server.component.Server;
 import com.db.dataplatform.techtest.server.persistence.BlockTypeEnum;
@@ -41,4 +42,11 @@ public class ServerController {
         List<DataEnvelope> dataEnvelopByBlocktype = server.findDataEnvelopByBlocktype(blockType);
         return ResponseEntity.ok(dataEnvelopByBlocktype);
     }
+
+    @PatchMapping(value = "/update/{name}/{blockType}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PatchResponse> getDataByBlockType(@PathVariable("name") String name, @PathVariable("blockType") BlockTypeEnum blockType) throws IOException {
+        boolean success = server.updateBlocktypeByName(name, blockType);
+        return ResponseEntity.ok(new PatchResponse(success));
+    }
+
 }

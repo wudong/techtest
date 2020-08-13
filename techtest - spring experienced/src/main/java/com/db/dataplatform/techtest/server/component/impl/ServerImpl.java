@@ -55,6 +55,12 @@ public class ServerImpl implements Server {
             .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean updateBlocktypeByName(String name, BlockTypeEnum blocktype) {
+        dataBodyServiceImpl.updateBlocktypeByName(name, blocktype);
+        return true;
+    }
+
     private void persist(DataEnvelope envelope) {
         log.info("Persisting data with attribute name: {}", envelope.getDataHeader().getName());
         DataHeaderEntity dataHeaderEntity = modelMapper.map(envelope.getDataHeader(), DataHeaderEntity.class);

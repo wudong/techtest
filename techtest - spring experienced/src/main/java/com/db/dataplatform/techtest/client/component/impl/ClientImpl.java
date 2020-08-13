@@ -2,6 +2,7 @@ package com.db.dataplatform.techtest.client.component.impl;
 
 import com.db.dataplatform.techtest.common.api.model.DataEnvelope;
 import com.db.dataplatform.techtest.client.component.Client;
+import com.db.dataplatform.techtest.common.api.model.PatchResponse;
 import com.db.dataplatform.techtest.common.api.model.PushResponse;
 import com.db.dataplatform.techtest.common.util.ChecksumCalc;
 import lombok.RequiredArgsConstructor;
@@ -74,7 +75,14 @@ public class ClientImpl implements Client {
     @Override
     public boolean updateData(String blockName, String newBlockType) {
         log.info("Updating blocktype to {} for block with name {}", newBlockType, blockName);
-        return true;
+        try{
+            PatchResponse patchResponse = restTemplate.patchForObject(URI_PATCHDATA.expand(blockName, newBlockType),
+                    null, PatchResponse.class);
+            return patchResponse.isSuccessful();
+        }catch (RestClientException e) {
+            log.error("Error while getting data", e);
+            throw e;
+        }
     }
 
 
